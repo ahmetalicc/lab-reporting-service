@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponse {
+public class UserViewResponse {
 
     private String name;
 
     private String username;
 
     private List<String> roles;
-    public static UserResponse Convert(User user){
-        return UserResponse.builder()
+    public static UserViewResponse Convert(User user){
+        return UserViewResponse.builder()
                 .name(user.getName())
                 .username(user.getUsername())
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
