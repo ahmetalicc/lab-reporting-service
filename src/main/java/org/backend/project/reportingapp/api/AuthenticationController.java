@@ -27,7 +27,7 @@ public class AuthenticationController {
     @PostMapping("/save")
     public ResponseEntity<DataResponse<UserResponse>> saveUser(@RequestBody UserRegisterRequest userRegisterRequest){
         try {
-            return ResponseEntity.ok(new SuccessDataResponse<>(authenticationService.saveUser(userRegisterRequest)));
+            return ResponseEntity.ok(new SuccessDataResponse<>(authenticationService.saveUser(userRegisterRequest), "User is saved to the database successfully."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDataResponse<>(e.getMessage()));
         }
@@ -36,7 +36,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<DataResponse<TokenResponse>> login(@Valid @RequestBody UserLoginRequest userLoginRequest){
         try {
-            return ResponseEntity.ok(new SuccessDataResponse<>(authenticationService.login(userLoginRequest)));
+            return ResponseEntity.ok(new SuccessDataResponse<>(authenticationService.login(userLoginRequest), "Login successful."));
         }catch (NullPointerException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDataResponse<>(e.getMessage()));
         }
