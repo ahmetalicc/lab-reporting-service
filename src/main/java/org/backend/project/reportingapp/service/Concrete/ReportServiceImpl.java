@@ -1,6 +1,7 @@
 package org.backend.project.reportingapp.service.Concrete;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.backend.project.reportingapp.dao.LaborantRepository;
 import org.backend.project.reportingapp.dao.ReportRepository;
 import org.backend.project.reportingapp.dto.request.ReportDto;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
@@ -42,7 +44,10 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public ReportResponse generateReport(ReportDto reportDto) {
         Laborant laborant = laborantRepository.findById(reportDto.getLaborantId()).orElseThrow(
-                ()-> new NullPointerException(String.format("Laborant not found with id: %s", reportDto.getLaborantId())));
+                () -> {
+                    log.error("Laborant not found with id: {}", reportDto.getLaborantId());
+                    return new NullPointerException(String.format("Laborant not found with id: %s", reportDto.getLaborantId()));
+                });
 
         Report report = new Report();
         return getReportResponse(reportDto, laborant, report);
@@ -51,7 +56,10 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public ReportResponse getOneReport(Long id) {
         Report report = reportRepository.findById(id).orElseThrow(
-                ()-> new NullPointerException(String.format("Report not found with given id: %s", id)));
+                () -> {
+                    log.error("Report not found with id: {}", id);
+                    return new NullPointerException(String.format("Report not found with given id: %s", id));
+                });
 
         return ReportResponse.Convert(report);
     }
@@ -59,10 +67,16 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public ReportResponse updateReport(Long id, ReportDto reportDto) {
         Laborant laborant = laborantRepository.findById(reportDto.getLaborantId()).orElseThrow(
-                ()-> new NullPointerException(String.format("Laborant not found with id: %s", reportDto.getLaborantId())));
+                () -> {
+                    log.error("Laborant not found with id: {}", reportDto.getLaborantId());
+                    return new NullPointerException(String.format("Laborant not found with id: %s", reportDto.getLaborantId()));
+                });
 
         Report report = reportRepository.findById(id).orElseThrow(
-                ()-> new NullPointerException(String.format("Report not found with given id: %s", id)));
+                () -> {
+                    log.error("Report not found with id: {}", id);
+                    return new NullPointerException(String.format("Report not found with given id: %s", id));
+                });
 
         return getReportResponse(reportDto, laborant, report);
     }
@@ -70,8 +84,13 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void deleteReport(Long id) {
         Report report = reportRepository.findById(id).orElseThrow(
-                ()-> new NullPointerException(String.format("Report not found with given id: %s", id)));
+                () -> {
+                    log.error("Report not found with id: {}", id);
+                    return new NullPointerException(String.format("Report not found with given id: %s", id));
+                });
+
         reportRepository.delete(report);
+        log.info("Report with id: {} deleted", id);
     }
 
     private ReportResponse getReportResponse(ReportDto reportDto, Laborant laborant, Report report) {
@@ -86,7 +105,7 @@ public class ReportServiceImpl implements ReportService {
         report.setLaborant(laborant);
 
         reportRepository.save(report);
-
+        log.info("Report updated and saved: {}", report);
         return ReportResponse.Convert(report);
     }
 }

@@ -1,6 +1,7 @@
 package org.backend.project.reportingapp.service.Concrete;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.backend.project.reportingapp.dao.RoleRepository;
 import org.backend.project.reportingapp.dao.UserRepository;
 import org.backend.project.reportingapp.dto.request.UserRegisterRequest;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService {
     public UserViewResponse saveUser(UserRegisterRequest userRegisterRequest) {
 
         if (userRegisterRequest.getRoleIds() == null || userRegisterRequest.getRoleIds().isEmpty()) {
+            log.error("RoleId list cannot be null or empty");
             throw new IllegalArgumentException("RoleId list cannot be null or empty");
         }
 
@@ -64,6 +67,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
 
         if (roles.isEmpty()) {
+            log.error("No roles found for the provided RoleId list");
             throw new IllegalArgumentException("No roles found for the provided RoleId list");
         }
 
@@ -75,6 +79,7 @@ public class UserServiceImpl implements UserService {
                 .roles(roles).build();
 
         userRepository.save(user);
+        log.info("User saved: {}", user);
 
         return UserViewResponse.Convert(user);
     }
@@ -82,26 +87,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserViewResponse updateUser(Integer id, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(id).orElseThrow(
-                () -> new NullPointerException(String.format("User not found with id(%s) that is provided:", id)));
+                () -> {
+                    log.error("User not found with id: {}", id);
+                    return new NullPointerException(String.format("User not found with id(%s) that is provided:", id));
+                });
 
-        if(userRepository.existsByUsername(userUpdateRequest.getUsername())){
-            throw new IllegalStateException(String.format("Username %s is already in the database.",
-                    userUpdateRequest.getUsername()));
+        boolean isUpdated = false;
+
+        if (!user.getUsername().equals(userUpdateRequest.getUsername())) {
+            if (userRepository.existsByUsername(userUpdateRequest.getUsername())) {
+                log.error("Username {} is already in the database.", userUpdateRequest.getUsername());
+                throw new IllegalStateException(String.format("Username %s is already in the database.", userUpdateRequest.getUsername()));
+            }
+            user.setUsername(userUpdateRequest.getUsername());
+            isUpdated = true;
         }
 
-        user.setName(userUpdateRequest.getName());
-        user.setUsername(userUpdateRequest.getUsername());
-        userRepository.save(user);
+        if (!user.getName().equals(userUpdateRequest.getName())) {
+            user.setName(userUpdateRequest.getName());
+            isUpdated = true;
+        }
 
+        if (!isUpdated) {
+            log.error("No fields have been updated. Please provide different values.");
+            throw new IllegalStateException("No fields have been updated. Please provide different values.");
+        }
+
+        userRepository.save(user);
+        log.info("User updated: {}", user);
         return UserViewResponse.Convert(user);
     }
 
     @Override
     public void deleteUser(Integer id) {
         User user = userRepository.findById(id).orElseThrow(
-                ()-> new NullPointerException(String.format("User not found with id: %s", id)));
+                () -> {
+                    log.error("User not found with id: {}", id);
+                    return new NullPointerException(String.format("User not found with id: %s", id));
+                });
 
         userRepository.delete(user);
+        log.trace("User with id: {} deleted", id);
     }
 
 
