@@ -3,16 +3,22 @@ package org.backend.project.reportingapp.service.Concrete;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.backend.project.reportingapp.dao.LaborantRepository;
+import org.backend.project.reportingapp.dao.RoleRepository;
+import org.backend.project.reportingapp.dao.UserRepository;
 import org.backend.project.reportingapp.dto.request.LaborantDto;
 import org.backend.project.reportingapp.dto.response.LaborantResponse;
 import org.backend.project.reportingapp.entity.Laborant;
+import org.backend.project.reportingapp.entity.Role;
+import org.backend.project.reportingapp.entity.User;
 import org.backend.project.reportingapp.service.Abstract.LaborantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +29,9 @@ import java.util.stream.Collectors;
 public class LaborantServiceImpl implements LaborantService {
 
     private final LaborantRepository laborantRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
     @Override
     public LaborantResponse createLaborant(LaborantDto laborantDto) {
         if (laborantDto.getFirstName() == null || laborantDto.getFirstName().isEmpty()) {
@@ -44,11 +53,36 @@ public class LaborantServiceImpl implements LaborantService {
             log.error("A laborant with this hospital ID already exists.");
             throw new IllegalArgumentException("A laborant with this hospital ID already exists.");
         }
+        Role laborantRole = roleRepository.findById(3L).orElseThrow(() ->
+                new IllegalArgumentException("Laborant role not found"));
+        if (!laborantDto.getUser().getRoleIds().contains(3L)) {
+            log.error("Laborant role must be assigned.");
+            throw new IllegalArgumentException("Laborant role must be assigned.");
+        }
+        if (laborantDto.getUser().getRoleIds().size() > 1) {
+            log.error("Laborant can only have the laborant role.");
+            throw new IllegalArgumentException("Laborant can only have the laborant role.");
+        }
+
+        if (userRepository.findByUsername(laborantDto.getUser().getUsername()).isPresent()) {
+            log.error("A user with this username already exists.");
+            throw new IllegalArgumentException("A user with this username already exists.");
+        }
+        User user = User.builder()
+                .firstName(laborantDto.getFirstName())
+                .lastName(laborantDto.getLastName())
+                .username(laborantDto.getUser().getUsername())
+                .password(passwordEncoder.encode(laborantDto.getUser().getPassword()))
+                .roles(Collections.singletonList(laborantRole)).build();
+
+        userRepository.save(user);
+        log.info("User who has laborant role created and saved: {}", user);
 
         Laborant laborant = new Laborant();
+        laborant.setHospitalId(laborantDto.getHospitalId());
         laborant.setFirstName(laborantDto.getFirstName());
         laborant.setLastName(laborantDto.getLastName());
-        laborant.setHospitalId(laborantDto.getHospitalId());
+        laborant.setUser(user);
 
         laborantRepository.save(laborant);
         log.info("Laborant created and saved: {}", laborant);

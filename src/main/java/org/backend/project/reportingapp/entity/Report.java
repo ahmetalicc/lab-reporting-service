@@ -36,7 +36,7 @@ public class Report {
     @Column(name = "reportImage")
     private byte[]reportImage;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "laborant_id")
     private Laborant laborant;
 }

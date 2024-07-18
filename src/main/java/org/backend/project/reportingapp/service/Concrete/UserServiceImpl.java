@@ -60,6 +60,11 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("RoleId list cannot be null or empty");
         }
 
+        if (userRegisterRequest.getRoleIds().contains(3L)) {
+            log.error("Laborant role can not be added here.");
+            throw new IllegalArgumentException("Laborant role can not be added here.");
+        }
+
         List<Role> roles = userRegisterRequest.getRoleIds().stream()
                 .map(roleRepository::findById)
                 .filter(Optional::isPresent)
@@ -71,9 +76,9 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("No roles found for the provided RoleId list");
         }
 
-
         User user = User.builder()
-                .name(userRegisterRequest.getName())
+                .firstName(userRegisterRequest.getFirstName())
+                .lastName(userRegisterRequest.getLastName())
                 .username(userRegisterRequest.getUsername())
                 .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
                 .roles(roles).build();
@@ -103,8 +108,12 @@ public class UserServiceImpl implements UserService {
             isUpdated = true;
         }
 
-        if (!user.getName().equals(userUpdateRequest.getName())) {
-            user.setName(userUpdateRequest.getName());
+        if (!user.getFirstName().equals(userUpdateRequest.getFirstName())) {
+            user.setFirstName(userUpdateRequest.getFirstName());
+            isUpdated = true;
+        }
+        if (!user.getLastName().equals(userUpdateRequest.getLastName())) {
+            user.setLastName(userUpdateRequest.getLastName());
             isUpdated = true;
         }
 

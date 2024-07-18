@@ -12,7 +12,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUsername(String username);
     @Query("SELECT u FROM User u WHERE " +
-            "LOWER(u.name) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
             "LOWER(u.username) LIKE LOWER(CONCAT('%', :filter, '%')) ")
     Page<User> findUsersByFilter(@Param("filter") String filter, Pageable pageable);
 
