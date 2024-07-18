@@ -23,7 +23,7 @@ public class AuthenticationController {
     public ResponseEntity<DataResponse<TokenResponse>> login(@Valid @RequestBody UserLoginRequest userLoginRequest){
         try {
             return ResponseEntity.ok(new SuccessDataResponse<>(authenticationService.login(userLoginRequest), "Login successful."));
-        }catch (NullPointerException e){
+        }catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDataResponse<>(e.getMessage()));
         }
     }
