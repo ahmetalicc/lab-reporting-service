@@ -7,6 +7,7 @@ import org.backend.project.reportingapp.dto.response.LaborantResponse;
 import org.backend.project.reportingapp.service.Abstract.LaborantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -45,6 +46,10 @@ public class LaborantController {
         }
         catch (NullPointerException | IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDataResponse<>(e.getMessage()));
+        }
+        catch (TransactionSystemException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorDataResponse<>("Internal Server Error: " + e.getMostSpecificCause().getMessage()));
         }
     }
 

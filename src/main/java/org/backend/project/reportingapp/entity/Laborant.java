@@ -31,4 +31,8 @@ public class Laborant {
 
     @OneToMany(mappedBy = "laborant")
     private List<Report> reports;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 }

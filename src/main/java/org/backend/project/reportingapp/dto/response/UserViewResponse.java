@@ -16,14 +16,17 @@ import java.util.stream.Collectors;
 @Builder
 public class UserViewResponse {
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String username;
 
     private List<String> roles;
     public static UserViewResponse Convert(User user){
         return UserViewResponse.builder()
-                .name(user.getName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .username(user.getUsername())
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                 .build();

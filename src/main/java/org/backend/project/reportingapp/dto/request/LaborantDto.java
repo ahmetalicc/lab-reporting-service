@@ -18,4 +18,6 @@ public class LaborantDto {
     @NotNull
     @Size(min = 7, max = 7, message = "Field length must be exactly 7 characters")
     private String hospitalId;
+    @NotNull
+    private UserDto user;
 }
