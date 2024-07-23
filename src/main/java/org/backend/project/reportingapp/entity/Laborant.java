@@ -29,7 +29,7 @@ public class Laborant {
     @Size(min = 7, max = 7, message = "Field length must be exactly 7 characters")
     private String hospitalId;
 
-    @OneToMany(mappedBy = "laborant")
+    @OneToMany(mappedBy = "laborant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reports;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
