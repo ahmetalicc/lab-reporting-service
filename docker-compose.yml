@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  reporting-app:
+    build: .
+    image: reporting-app:latest
+    container_name: reporting-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/hospital
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE_SECOND: ${JWT_EXPIRE_SECOND}
