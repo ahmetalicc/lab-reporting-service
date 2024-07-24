@@ -94,6 +94,10 @@ docker build -t "image-name":latest .
 
 `docker-compose up -d`
 
+**Access the Application:**
+
+The application will be running at http://localhost:8080.
+
 **Stop the Running Application:**
 
 `docker-compose down`
