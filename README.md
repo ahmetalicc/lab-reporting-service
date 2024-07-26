@@ -50,7 +50,7 @@ This project is a laboratory reporting application developed using Spring Boot, 
 
 **Clone the repository:**
    ```bash
-   git clone https://github.com/ahmetalicc/ReportingApp.git
+   git clone https://github.com/ahmetalicc/lab-reporting-service.git
    cd ReportingApp
 ```
 
